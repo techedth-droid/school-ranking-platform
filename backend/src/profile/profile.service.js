@@ -1,14 +1,14 @@
 const path = require('path');
 const fs = require('fs').promises;
 const prisma = require('../prisma');
-
-const uploadRoot = process.env.UPLOAD_PATH || path.join(__dirname, '../../uploads');
+const {
+  deleteUploadedFile,
+  isRemoteUrl,
+  persistUploadedFile,
+  uploadRoot,
+} = require('../upload/storage');
 
 const MAX_GALLERY_IMAGES = 5;
-
-function publicUrl(file) {
-  return `/uploads/${path.basename(file.path)}`;
-}
 
 async function ensureSchool(schoolId) {
   const school = await prisma.school.findUnique({ where: { id: schoolId } });
@@ -21,19 +21,13 @@ async function ensureSchool(schoolId) {
 }
 
 async function unlinkSafe(url) {
-  if (!url) return;
-  const name = path.basename(url);
-  const diskPath = path.join(uploadRoot, name);
-  try {
-    await fs.unlink(diskPath);
-  } catch {
-    /* ignore missing file */
-  }
+  await deleteUploadedFile(url);
 }
 
 async function saveBanner(schoolId, file) {
   const school = await ensureSchool(schoolId);
-  const newUrl = publicUrl(file);
+  const savedFile = await persistUploadedFile(file, 'banners');
+  const newUrl = savedFile.url;
   await prisma.school.update({
     where: { id: schoolId },
     data: { bannerUrl: newUrl },
@@ -58,10 +52,11 @@ async function addGalleryImage(schoolId, file, caption = '') {
     err.status = 400;
     throw err;
   }
+  const savedFile = await persistUploadedFile(file, 'gallery');
   return prisma.schoolGalleryImage.create({
     data: {
       schoolId,
-      url: publicUrl(file),
+      url: savedFile.url,
       caption: caption || '',
       sortOrder: count,
     },
@@ -91,11 +86,12 @@ async function listCertificates(schoolId) {
 async function addCertificate(schoolId, file, title = '') {
   await ensureSchool(schoolId);
   const fileType = file.mimetype === 'application/pdf' ? 'pdf' : 'image';
+  const savedFile = await persistUploadedFile(file, 'certificates');
   return prisma.schoolCertificate.create({
     data: {
       schoolId,
       title: title || file.originalname || '',
-      fileUrl: publicUrl(file),
+      fileUrl: savedFile.url,
       fileType,
     },
   });
@@ -126,7 +122,8 @@ async function saveOfficialCertificatePdf(schoolId, file) {
     err.status = 400;
     throw err;
   }
-  const newUrl = publicUrl(file);
+  const savedFile = await persistUploadedFile(file, 'official-certificates');
+  const newUrl = savedFile.url;
   await prisma.school.update({
     where: { id: schoolId },
     data: { certificatePdfUrl: newUrl },
@@ -142,6 +139,7 @@ async function officialCertificateAbsolutePath(schoolId) {
     select: { certificatePdfUrl: true },
   });
   if (!row?.certificatePdfUrl) return null;
+  if (isRemoteUrl(row.certificatePdfUrl)) return null;
   const abs = path.join(uploadRoot, path.basename(row.certificatePdfUrl));
   try {
     await fs.access(abs);
@@ -149,6 +147,20 @@ async function officialCertificateAbsolutePath(schoolId) {
   } catch {
     return null;
   }
+}
+
+async function officialCertificateFile(schoolId) {
+  const row = await prisma.school.findUnique({
+    where: { id: schoolId },
+    select: { certificatePdfUrl: true },
+  });
+  if (!row?.certificatePdfUrl) return null;
+  if (isRemoteUrl(row.certificatePdfUrl)) {
+    return { type: 'remote', url: row.certificatePdfUrl };
+  }
+  const absPath = await officialCertificateAbsolutePath(schoolId);
+  if (!absPath) return null;
+  return { type: 'local', path: absPath };
 }
 
 module.exports = {
@@ -163,4 +175,5 @@ module.exports = {
   removeCertificate,
   saveOfficialCertificatePdf,
   officialCertificateAbsolutePath,
+  officialCertificateFile,
 };

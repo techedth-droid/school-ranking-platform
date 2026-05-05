@@ -4,7 +4,7 @@ Full-stack school ranking app: Next.js 14 (JavaScript), Express, PostgreSQL 16, 
 
 **ขอบเขต (1.6):** ทุกจังหวัดทั่วราชอาณาจักรไทย · กลุ่มเป้าหมาย โรงเรียนประถมศึกษาและมัธยมศึกษา ทั้งภาครัฐและเอกชน
 
-## Quick start000
+## Quick start
 
 1. Copy environment file:
 
@@ -58,7 +58,7 @@ Stack uses JavaScript only (no TypeScript). Types are documented with JSDoc in `
    - `JWT_SECRET`, `JWT_REFRESH_SECRET` — สุ่มยาว ๆ ใน production
    - `NODE_ENV=production`
    - `ADMIN_EMAIL` / `ADMIN_PASSWORD` — บัญชีแรก (seed ใช้ `upsert` ต่อรอบ deploy)
-5. **ไฟล์อัปโหลด:** ดิสก์บน PaaS มักไม่ถาวร — ใช้ **Volume** ที่ `UPLOAD_PATH` (ใน Docker ค่าเริ่มต้นคือ `/app/uploads`) หรือย้ายไป **Supabase Storage** / object storage ภายหลัง (ต้องแก้โค้ด upload)
+5. **ไฟล์อัปโหลด:** ดิสก์บน PaaS มักไม่ถาวร — แนะนำตั้ง `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` เพื่อเก็บไฟล์บน Cloudinary; ถ้าไม่ตั้ง ระบบจะ fallback ไปเก็บ local ที่ `UPLOAD_PATH` (ใน Docker ค่าเริ่มต้นคือ `/app/uploads`)
 
 ### Vercel (Next.js)
 

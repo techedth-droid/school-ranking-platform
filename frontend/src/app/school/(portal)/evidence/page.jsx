@@ -6,6 +6,7 @@ import { useSchoolPortal } from '@/contexts/SchoolPortalContext';
 import { toast } from 'sonner';
 
 function fileUrl(storedName) {
+  if (/^https?:\/\//i.test(storedName || '')) return storedName;
   const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005';
   return `${base}/uploads/${storedName.replace(/^\//, '')}`;
 }

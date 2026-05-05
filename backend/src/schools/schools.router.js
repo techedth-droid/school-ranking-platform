@@ -150,8 +150,8 @@ router.get(
   validate,
   async (req, res, next) => {
     try {
-      const absPath = await profileService.officialCertificateAbsolutePath(req.params.id);
-      if (!absPath) return res.status(404).json({ error: 'No certificate PDF uploaded' });
+      const file = await profileService.officialCertificateFile(req.params.id);
+      if (!file) return res.status(404).json({ error: 'No certificate PDF uploaded' });
       const row = await prisma.school.findUnique({
         where: { id: req.params.id },
         select: { name: true },
@@ -159,7 +159,18 @@ router.get(
       const safeName =
         (row?.name || 'certificate').replace(/[^\w\u0E00-\u0E7F\s-]+/g, '').trim() ||
         'certificate';
-      res.download(absPath, `${safeName}-certificate.pdf`, (err) => {
+      const downloadName = `${safeName}-certificate.pdf`;
+      if (file.type === 'remote') {
+        const upstream = await fetch(file.url);
+        if (!upstream.ok) {
+          return res.status(404).json({ error: 'No certificate PDF uploaded' });
+        }
+        res.setHeader('Content-Type', upstream.headers.get('content-type') || 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="${downloadName}"`);
+        const buffer = Buffer.from(await upstream.arrayBuffer());
+        return res.send(buffer);
+      }
+      res.download(file.path, downloadName, (err) => {
         if (err && !res.headersSent) next(err);
       });
     } catch (e) {

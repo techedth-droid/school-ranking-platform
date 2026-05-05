@@ -1,8 +1,6 @@
 const path = require('path');
-const fs = require('fs').promises;
 const prisma = require('../prisma');
-
-const uploadRoot = process.env.UPLOAD_PATH || path.join(__dirname, '../../uploads');
+const { deleteUploadedFile, persistUploadedFile, uploadRoot } = require('../upload/storage');
 
 async function listFiles(schoolId) {
   return prisma.evidenceFile.findMany({
@@ -21,11 +19,13 @@ async function listFiles(schoolId) {
 async function addFile(schoolId, file) {
   const school = await prisma.school.findUnique({ where: { id: schoolId } });
   if (!school) {
+    await deleteUploadedFile(file.path);
     const err = new Error('School not found');
     err.status = 404;
     throw err;
   }
-  const storedName = path.basename(file.path);
+  const savedFile = await persistUploadedFile(file, 'evidence');
+  const storedName = savedFile.storedName || path.basename(savedFile.path);
   return prisma.evidenceFile.create({
     data: {
       schoolId,
@@ -45,13 +45,8 @@ async function removeFile(schoolId, fileId) {
     err.status = 404;
     throw err;
   }
-  const diskPath = path.join(uploadRoot, row.storedName);
   await prisma.evidenceFile.delete({ where: { id: fileId } });
-  try {
-    await fs.unlink(diskPath);
-  } catch {
-    /* ignore missing file */
-  }
+  await deleteUploadedFile(row.storedName);
 }
 
 module.exports = { listFiles, addFile, removeFile, uploadRoot };

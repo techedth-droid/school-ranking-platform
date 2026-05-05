@@ -1,90 +1,57 @@
 const express = require('express');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 const { param, body } = require('express-validator');
 const { validate } = require('../middleware/validate.middleware');
 const { authMiddleware } = require('../middleware/auth.middleware');
 const { requireRole } = require('../middleware/roles.middleware');
 const { requireSchoolAccess } = require('../middleware/schoolAccess.middleware');
+const { createUploader } = require('./storage');
 const uploadService = require('./upload.service');
 const evidenceService = require('../evidence/evidence.service');
 const profileService = require('../profile/profile.service');
 
-const uploadRoot = process.env.UPLOAD_PATH || path.join(__dirname, '../../uploads');
-if (!fs.existsSync(uploadRoot)) {
-  fs.mkdirSync(uploadRoot, { recursive: true });
-}
-
-const maxMb = Number(process.env.UPLOAD_MAX_SIZE_MB) || 5;
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, uploadRoot),
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname) || '.png';
-    cb(null, `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
-  },
+const upload = createUploader((_req, file, cb) => {
+  if (!file.mimetype.startsWith('image/')) {
+    cb(new Error('Only image files allowed'));
+    return;
+  }
+  cb(null, true);
 });
 
-const upload = multer({
-  storage,
-  limits: { fileSize: maxMb * 1024 * 1024 },
-  fileFilter: (_req, file, cb) => {
-    if (!file.mimetype.startsWith('image/')) {
-      cb(new Error('Only image files allowed'));
-      return;
-    }
-    cb(null, true);
-  },
-});
-
-const evidenceMulter = multer({
-  storage,
-  limits: { fileSize: maxMb * 1024 * 1024 },
-  fileFilter: (_req, file, cb) => {
-    const ok =
-      file.mimetype.startsWith('image/') ||
-      file.mimetype === 'application/pdf' ||
-      file.mimetype === 'application/msword' ||
-      file.mimetype ===
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-    if (!ok) {
-      cb(new Error('Allowed: images, PDF, Word'));
-      return;
-    }
-    cb(null, true);
-  },
+const evidenceMulter = createUploader((_req, file, cb) => {
+  const ok =
+    file.mimetype.startsWith('image/') ||
+    file.mimetype === 'application/pdf' ||
+    file.mimetype === 'application/msword' ||
+    file.mimetype ===
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+  if (!ok) {
+    cb(new Error('Allowed: images, PDF, Word'));
+    return;
+  }
+  cb(null, true);
 });
 
 // banner: image only
 const bannerUpload = upload;
 
 // certificate: image OR PDF
-const certificateUpload = multer({
-  storage,
-  limits: { fileSize: maxMb * 1024 * 1024 },
-  fileFilter: (_req, file, cb) => {
-    const ok =
-      file.mimetype.startsWith('image/') || file.mimetype === 'application/pdf';
-    if (!ok) {
-      cb(new Error('Allowed: images or PDF'));
-      return;
-    }
-    cb(null, true);
-  },
+const certificateUpload = createUploader((_req, file, cb) => {
+  const ok =
+    file.mimetype.startsWith('image/') || file.mimetype === 'application/pdf';
+  if (!ok) {
+    cb(new Error('Allowed: images or PDF'));
+    return;
+  }
+  cb(null, true);
 });
 
 /** Official ministry certificate PDF (single file per school; download via authenticated API only) */
-const officialPdfUpload = multer({
-  storage,
-  limits: { fileSize: maxMb * 1024 * 1024 },
-  fileFilter: (_req, file, cb) => {
-    if (file.mimetype !== 'application/pdf') {
-      cb(new Error('Only PDF files allowed'));
-      return;
-    }
-    cb(null, true);
-  },
+const officialPdfUpload = createUploader((_req, file, cb) => {
+  if (file.mimetype !== 'application/pdf') {
+    cb(new Error('Only PDF files allowed'));
+    return;
+  }
+  cb(null, true);
 });
 
 const router = express.Router();

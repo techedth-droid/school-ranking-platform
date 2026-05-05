@@ -17,6 +17,11 @@ function uploadRemotePatterns() {
       port: '3005',
       pathname: '/uploads/**',
     },
+    {
+      protocol: 'https',
+      hostname: 'res.cloudinary.com',
+      pathname: '/**',
+    },
   ];
   try {
     const u = new URL(apiUrl);
