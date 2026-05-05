@@ -6,6 +6,9 @@ import api from '@/lib/api';
 import { clearTokens } from '@/lib/auth';
 import { toast } from 'sonner';
 
+const PROD_API_URL = 'https://school-ranking-platform-production.up.railway.app';
+const DEFAULT_API_URL = process.env.NODE_ENV === 'production' ? PROD_API_URL : 'http://localhost:3005';
+
 export default function AdminDashboardPage() {
   const router = useRouter();
 
@@ -83,7 +86,7 @@ export default function AdminDashboardPage() {
           <p className="text-sm text-gray-600">Audit log การสำคัญของแอดมิน</p>
         </Link>
         <a
-          href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005'}/api/docs`}
+          href={`${process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_URL}/api/docs`}
           target="_blank"
           rel="noreferrer"
           className="block border rounded-xl p-6 hover:border-gray-400 hover:bg-gray-50 transition"

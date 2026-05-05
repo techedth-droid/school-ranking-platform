@@ -26,7 +26,8 @@ if (!fs.existsSync(uploadPath)) {
 }
 
 /** Comma-separated for production (e.g. Vercel prod + preview): https://app.vercel.app,https://xxx-git-branch.vercel.app */
-const frontendOrigins = (process.env.FRONTEND_URL || 'http://localhost:3007')
+const defaultFrontendOrigins = 'http://localhost:3007,https://school-ranking-platform.vercel.app';
+const frontendOrigins = (process.env.FRONTEND_URL || defaultFrontendOrigins)
   .split(',')
   .map((s) => s.trim())
   .filter(Boolean);

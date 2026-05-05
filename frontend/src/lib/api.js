@@ -1,7 +1,10 @@
 import axios from 'axios';
 
+const PROD_API_URL = 'https://school-ranking-platform-production.up.railway.app';
+const DEFAULT_API_URL = process.env.NODE_ENV === 'production' ? PROD_API_URL : 'http://localhost:3005';
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_URL,
   withCredentials: true,
 });
 
@@ -24,7 +27,7 @@ api.interceptors.response.use(
         }
         const match = document.cookie.match(/refreshToken=([^;]+)/);
         if (match && err.config) {
-          const base = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+          const base = (process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_URL).replace(/\/$/, '');
           const refreshPath = '/api/auth/refresh';
           const refreshUrl = base ? `${base}${refreshPath}` : refreshPath;
           const { data } = await axios.post(refreshUrl, {

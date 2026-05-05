@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005';
+const PROD_API_URL = 'https://school-ranking-platform-production.up.railway.app';
+const defaultApiUrl = process.env.NODE_ENV === 'production' ? PROD_API_URL : 'http://localhost:3005';
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || defaultApiUrl;
 
 function uploadRemotePatterns() {
   const patterns = [
