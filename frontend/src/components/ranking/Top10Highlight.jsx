@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import api from '@/lib/api';
-import { TrophyIcon, MapPinIconFull, CrownIcon, ArrowRightIcon } from '@/components/Icons';
+import { resolveAssetUrl } from '@/lib/assets';
+import { TrophyIcon, MapPinIconFull, CrownIcon, ArrowRightIcon, SchoolIcon } from '@/components/Icons';
 
 const MEDAL_STYLES = {
   1: {
@@ -41,6 +43,26 @@ function ScoreBar({ score, max = 20 }) {
   );
 }
 
+function SchoolLogo({ school, className = 'h-12 w-12' }) {
+  const logoUrl = resolveAssetUrl(school?.logoUrl);
+  return (
+    <div className={`shrink-0 overflow-hidden flex items-center justify-center ${className}`}>
+      {logoUrl ? (
+        <Image
+          src={logoUrl}
+          alt={`โลโก้ ${school?.name || 'โรงเรียน'}`}
+          width={64}
+          height={64}
+          className="h-full w-full object-contain"
+          unoptimized
+        />
+      ) : (
+        <SchoolIcon className="h-6 w-6 text-gray-300" />
+      )}
+    </div>
+  );
+}
+
 function TopCard({ rank, school, totalScore }) {
   const style = MEDAL_STYLES[rank];
   const isFirst = rank === 1;
@@ -64,16 +86,21 @@ function TopCard({ rank, school, totalScore }) {
       </div>
 
       {/* School info — พื้นการ์ดยังเป็นสีอ่อนในโหมดมืด จึงใช้ตัวอักษรโทนเข้มเสมอ */}
-      <h3
-        className={`font-bold text-gray-900 leading-snug group-hover:text-accent-800 transition-colors line-clamp-2 min-h-[2.75rem] sm:min-h-[3.25rem] ${
-          isFirst ? 'text-lg sm:text-xl' : 'text-base sm:text-lg'
-        }`}
-      >
-        {school.name}
-      </h3>
-      {school.nameEn?.trim() && (
-        <p className="text-xs text-gray-600 mt-0.5 truncate">{school.nameEn}</p>
-      )}
+      <div className="flex items-start gap-3">
+        <SchoolLogo school={school} className={isFirst ? 'h-14 w-14' : 'h-12 w-12'} />
+        <div className="min-w-0 flex-1">
+          <h3
+            className={`font-bold text-gray-900 leading-snug group-hover:text-accent-800 transition-colors line-clamp-2 min-h-[2.75rem] sm:min-h-[3.25rem] ${
+              isFirst ? 'text-lg sm:text-xl' : 'text-base sm:text-lg'
+            }`}
+          >
+            {school.name}
+          </h3>
+          {school.nameEn?.trim() && (
+            <p className="text-xs text-gray-600 mt-0.5 truncate">{school.nameEn}</p>
+          )}
+        </div>
+      </div>
 
       {/* Location */}
       <div className="flex items-center gap-1.5 mt-3 text-xs text-gray-600">
@@ -107,13 +134,16 @@ function RunnerUpCard({ rank, school, totalScore }) {
       href={`/schools/${school.id}`}
       className="group flex h-full items-center gap-4 rounded-xl bg-white border border-gray-100 p-4 transition-all duration-200 hover:shadow-card-hover hover:border-gray-200 dark:bg-gray-900/70 dark:border-gray-800 dark:hover:border-gray-700"
     >
-      <div className="shrink-0 w-10 h-10 rounded-full bg-accent-50 text-accent-700 flex items-center justify-center text-sm font-bold dark:bg-accent-950/60 dark:text-accent-200">
-        {rank}
-      </div>
+      <SchoolLogo school={school} className="h-11 w-11" />
       <div className="flex-1 min-w-0">
-        <h4 className="text-sm font-semibold text-gray-900 truncate group-hover:text-accent-700 transition-colors dark:text-gray-100 dark:group-hover:text-accent-300">
-          {school.name}
-        </h4>
+        <div className="flex items-center gap-2">
+          <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-accent-50 px-1.5 text-xs font-bold text-accent-700 dark:bg-accent-950/60 dark:text-accent-200">
+            {rank}
+          </span>
+          <h4 className="text-sm font-semibold text-gray-900 truncate group-hover:text-accent-700 transition-colors dark:text-gray-100 dark:group-hover:text-accent-300">
+            {school.name}
+          </h4>
+        </div>
         <div className="flex items-center gap-1 text-xs text-gray-500 mt-0.5">
           <MapPinIconFull className="w-3 h-3 text-gray-400 shrink-0" />
           <span className="truncate">{school.province}</span>

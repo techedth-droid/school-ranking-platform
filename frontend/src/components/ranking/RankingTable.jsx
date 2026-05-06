@@ -2,8 +2,10 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import api from '@/lib/api';
-import { EyeIcon, ChevronUpIcon, ChevronDownIcon, ArrowLeftIcon, ArrowRightIcon, MapPinIconFull } from '@/components/Icons';
+import { resolveAssetUrl } from '@/lib/assets';
+import { EyeIcon, ChevronUpIcon, ChevronDownIcon, ArrowLeftIcon, ArrowRightIcon, MapPinIconFull, SchoolIcon } from '@/components/Icons';
 
 const LEVEL_COLOR = {
   A: 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/50 dark:text-amber-200 dark:border-amber-800',
@@ -37,6 +39,26 @@ function ScoreMiniBar({ score, max = 20 }) {
         />
       </div>
     </div>
+  );
+}
+
+function SchoolLogo({ school }) {
+  const logoUrl = resolveAssetUrl(school?.logoUrl);
+  return (
+    <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden">
+      {logoUrl ? (
+        <Image
+          src={logoUrl}
+          alt={`โลโก้ ${school?.name || 'โรงเรียน'}`}
+          width={40}
+          height={40}
+          className="h-full w-full object-contain"
+          unoptimized
+        />
+      ) : (
+        <SchoolIcon className="h-5 w-5 text-gray-300 dark:text-gray-600" />
+      )}
+    </span>
   );
 }
 
@@ -177,20 +199,23 @@ export default function RankingTable({ filters = {} }) {
                   <td className="px-4 sm:px-5 py-4">
                     <Link
                       href={`/schools/${r.school.id}`}
-                      className="group/link inline-block text-left max-w-full"
+                      className="group/link inline-flex items-center gap-3 text-left max-w-full"
                     >
-                      <span className="font-semibold text-gray-900 group-hover/link:text-accent-700 transition-colors dark:text-gray-100 dark:group-hover/link:text-accent-300">
-                        {r.school.name}
-                      </span>
-                      {r.school.nameEn?.trim() && (
-                        <span className="block text-xs text-gray-400 font-normal mt-0.5 truncate max-w-xs dark:text-gray-500">
-                          {r.school.nameEn}
+                      <SchoolLogo school={r.school} />
+                      <span className="min-w-0">
+                        <span className="block font-semibold text-gray-900 group-hover/link:text-accent-700 transition-colors dark:text-gray-100 dark:group-hover/link:text-accent-300">
+                          {r.school.name}
                         </span>
-                      )}
-                      {/* Mobile-only location */}
-                      <span className="md:hidden flex items-center gap-1 text-xs text-gray-400 mt-1 dark:text-gray-500">
-                        <MapPinIconFull className="w-3 h-3 shrink-0" />
-                        {r.school.province}
+                        {r.school.nameEn?.trim() && (
+                          <span className="block text-xs text-gray-400 font-normal mt-0.5 truncate max-w-xs dark:text-gray-500">
+                            {r.school.nameEn}
+                          </span>
+                        )}
+                        {/* Mobile-only location */}
+                        <span className="md:hidden flex items-center gap-1 text-xs text-gray-400 mt-1 dark:text-gray-500">
+                          <MapPinIconFull className="w-3 h-3 shrink-0" />
+                          {r.school.province}
+                        </span>
                       </span>
                     </Link>
                   </td>

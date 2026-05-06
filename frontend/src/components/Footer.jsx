@@ -42,13 +42,6 @@ export default function Footer() {
               </p>
             </div>
 
-            <div className="pt-4">
-              <h4 className="text-sm font-extrabold text-white">เกี่ยวกับเรา</h4>
-              <p className="mt-3 text-sm leading-relaxed text-white/80">
-                ผู้นำเข้าและจัดจำหน่ายโซลูชั่นเทคโนโลยีขั้นสูง ส่งเสริมการศึกษาและพัฒนาเมืองอัจฉริยะในประเทศไทย
-              </p>
-              <p className="mt-3 text-xs text-white/70">ทะเบียนนิติบุคคล : 0105567150406</p>
-            </div>
           </div>
 
           <div className="px-6 py-8 lg:py-10">
