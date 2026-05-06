@@ -42,6 +42,12 @@ model School {
   lineId            String                @default("")
   certificatePdfUrl String?
   isPublished       Boolean               @default(false)
+  // จำนวนห้องเรียนทั้งหมดของโรงเรียน
+  totalRooms Int @default(0)
+  // จำนวนห้อง Smart Classroom ของโรงเรียน
+  smartClassroomRooms Int @default(0)
+  // จำนวนนักเรียนทั้งหมดของโรงเรียน
+  studentCount Int @default(0)
   scores            Score?
   ranking           Ranking?
   users             User[]
@@ -50,8 +56,50 @@ model School {
   galleryImages     SchoolGalleryImage[]
   certificates      SchoolCertificate[]
   applications      SchoolApplication[]
+  yearSnapshots     SchoolYearCategorySnapshot[]
   createdAt         DateTime              @default(now())
   updatedAt         DateTime              @updatedAt
+}
+
+// Per-calendar-year category score totals for trend charts (one row per school per year).
+model SchoolYearCategorySnapshot {
+  id       String @id @default(uuid())
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  year     Int
+  scoreA   Float
+  scoreB   Float
+  scoreC   Float
+  scoreD   Float
+  scoreE   Float
+  a1       Float  @default(0)
+  a2       Float  @default(0)
+  a3       Float  @default(0)
+  a4       Float  @default(0)
+  a5       Float  @default(0)
+  b1       Float  @default(0)
+  b2       Float  @default(0)
+  b3       Float  @default(0)
+  b4       Float  @default(0)
+  b5       Float  @default(0)
+  c1       Float  @default(0)
+  c2       Float  @default(0)
+  c3       Float  @default(0)
+  c4       Float  @default(0)
+  c5       Float  @default(0)
+  d1       Float  @default(0)
+  d2       Float  @default(0)
+  d3       Float  @default(0)
+  d4       Float  @default(0)
+  d5       Float  @default(0)
+  e1       Float  @default(0)
+  e2       Float  @default(0)
+  e3       Float  @default(0)
+  e4       Float  @default(0)
+  e5       Float  @default(0)
+
+  @@unique([schoolId, year])
+  @@index([schoolId, year])
 }
 
 model AuditLog {
@@ -183,6 +231,12 @@ model SchoolApplication {
   coordinatorEmail  String
   coordinatorPhone   String             @default("")
   message            String             @default("")
+  // จำนวนห้องเรียนทั้งหมดของโรงเรียน (สำหรับเก็บตอนยื่นคำขอ)
+  totalRooms Int @default(0)
+  // จำนวนห้อง Smart Classroom ของโรงเรียน (สำหรับเก็บตอนยื่นคำขอ)
+  smartClassroomRooms Int @default(0)
+  // จำนวนนักเรียนทั้งหมดของโรงเรียน (สำหรับเก็บตอนยื่นคำขอ)
+  studentCount Int @default(0)
   status             ApplicationStatus  @default(PENDING)
   adminNote          String             @default("")
   processedAt        DateTime?

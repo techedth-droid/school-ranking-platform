@@ -15,7 +15,7 @@ export default function ProfileGallery({ images = [] }) {
 
   return (
     <>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+      <div className="space-y-3">
         {images.slice(0, 5).map((img, idx) => {
           const url = resolveAssetUrl(img.url);
           if (!url) return null;
@@ -24,9 +24,10 @@ export default function ProfileGallery({ images = [] }) {
               key={img.id}
               type="button"
               onClick={() => setActive({ ...img, url })}
-              className={`group relative aspect-square overflow-hidden rounded-xl border bg-gray-100 hover:ring-2 hover:ring-blue-300 ${idx === 0 ? 'col-span-2 row-span-2 sm:col-span-1 sm:row-span-1' : ''}`}
+              className="group relative w-full overflow-hidden rounded-xl border bg-gray-100 hover:ring-2 hover:ring-blue-300"
               aria-label={img.caption || `รูปกิจกรรม ${idx + 1}`}
             >
+              <div className="relative w-full aspect-[16/9]">
               <Image
                 src={url}
                 alt={img.caption || `รูปกิจกรรม ${idx + 1}`}
@@ -35,6 +36,7 @@ export default function ProfileGallery({ images = [] }) {
                 className="object-cover transition group-hover:scale-105"
                 unoptimized
               />
+              </div>
               {img.caption ? (
                 <span className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent text-white text-xs p-2 line-clamp-2">
                   {img.caption}

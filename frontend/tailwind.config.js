@@ -5,7 +5,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['var(--font-prompt)', 'system-ui', '-apple-system', 'sans-serif'],
       },
       colors: {
         /** Primary surfaces — #3b3b3b and scale */

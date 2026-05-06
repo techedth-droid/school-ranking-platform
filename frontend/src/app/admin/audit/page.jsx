@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import api from '@/lib/api';
+import { BackNavLink } from '@/components/ui/NavLinks';
 import { toast } from 'sonner';
 
 export default function AdminAuditPage() {
@@ -34,9 +34,7 @@ export default function AdminAuditPage() {
           <h1 className="text-2xl font-bold">บันทึกกิจกรรม (Audit)</h1>
           <p className="text-sm text-gray-600 mt-1">ล่าสุด 200 รายการ</p>
         </div>
-        <Link href="/admin/dashboard" className="text-sm text-blue-600 hover:underline">
-          กลับแดชบอร์ด
-        </Link>
+        <BackNavLink href="/admin/dashboard">กลับแดชบอร์ด</BackNavLink>
       </div>
 
       {loading ? (

@@ -50,6 +50,9 @@ services:
     ports:
       - '${FRONTEND_PORT:-3007}:3007'
     env_file: .env
+    environment:
+      # ใช้ใน middleware ตรวจ JWT — ต้องตรงกับ backend
+      JWT_SECRET: ${JWT_SECRET}
     networks:
       - school_net
     depends_on:

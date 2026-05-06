@@ -25,6 +25,17 @@ function computeTotals(scoreRow) {
   return { scoreA, scoreB, scoreC, scoreD, scoreE, totalScore, level };
 }
 
+function scoreDetails(scoreRow) {
+  const data = {};
+  ['a', 'b', 'c', 'd', 'e'].forEach((letter) => {
+    for (let n = 1; n <= 5; n += 1) {
+      const key = `${letter}${n}`;
+      data[key] = Number(scoreRow[key] ?? 0);
+    }
+  });
+  return data;
+}
+
 async function recalculateAll() {
   const schools = await prisma.school.findMany({
     include: { scores: true },
@@ -33,6 +44,7 @@ async function recalculateAll() {
     const row = school.scores ?? {};
     return {
       schoolId: school.id,
+      ...scoreDetails(row),
       ...computeTotals(row),
     };
   });
@@ -56,6 +68,9 @@ async function recalculateAll() {
       });
     }
   });
+  const yearSnapshotService = require('../yearSnapshot/yearSnapshot.service');
+  const calYear = new Date().getFullYear();
+  await yearSnapshotService.upsertSnapshotsForYearFromRanked(ranked, calYear);
   return { recalculated: ranked.length };
 }
 

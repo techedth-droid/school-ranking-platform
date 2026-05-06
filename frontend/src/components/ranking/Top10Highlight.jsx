@@ -29,7 +29,7 @@ const MEDAL_STYLES = {
   },
 };
 
-function ScoreBar({ score, max = 100 }) {
+function ScoreBar({ score, max = 20 }) {
   const pct = Math.min((score / max) * 100, 100);
   return (
     <div className="w-full bg-gray-200/90 rounded-full h-1.5 mt-1.5">
@@ -48,7 +48,7 @@ function TopCard({ rank, school, totalScore }) {
   return (
     <Link
       href={`/schools/${school.id}`}
-      className={`group relative flex flex-col rounded-2xl border-2 ${style.border} ${style.bg} p-5 sm:p-6 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1 ring-1 ${style.ring}`}
+      className={`group relative flex h-full flex-col rounded-2xl border-2 ${style.border} ${style.bg} p-5 sm:p-6 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1 ring-1 ${style.ring}`}
     >
       {/* Rank badge */}
       <div className="flex items-center justify-between mb-4">
@@ -65,8 +65,8 @@ function TopCard({ rank, school, totalScore }) {
 
       {/* School info — พื้นการ์ดยังเป็นสีอ่อนในโหมดมืด จึงใช้ตัวอักษรโทนเข้มเสมอ */}
       <h3
-        className={`font-bold text-gray-900 leading-snug group-hover:text-accent-800 transition-colors ${
-          isFirst ? 'text-lg sm:text-xl' : 'text-base'
+        className={`font-bold text-gray-900 leading-snug group-hover:text-accent-800 transition-colors line-clamp-2 min-h-[2.75rem] sm:min-h-[3.25rem] ${
+          isFirst ? 'text-lg sm:text-xl' : 'text-base sm:text-lg'
         }`}
       >
         {school.name}
@@ -93,7 +93,7 @@ function TopCard({ rank, school, totalScore }) {
       </div>
 
       {/* CTA */}
-      <div className="mt-4 pt-3 border-t border-muted-200/80 flex items-center gap-1.5 text-xs font-medium text-accent-700 group-hover:text-accent-900 transition-colors">
+      <div className="mt-auto pt-4 border-t border-muted-200/80 flex items-center gap-1.5 text-xs font-medium text-accent-700 group-hover:text-accent-900 transition-colors">
         ดูรายละเอียด
         <ArrowRightIcon className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
       </div>
@@ -105,7 +105,7 @@ function RunnerUpCard({ rank, school, totalScore }) {
   return (
     <Link
       href={`/schools/${school.id}`}
-      className="group flex items-center gap-4 rounded-xl bg-white border border-gray-100 p-4 transition-all duration-200 hover:shadow-card-hover hover:border-gray-200 dark:bg-gray-900/70 dark:border-gray-800 dark:hover:border-gray-700"
+      className="group flex h-full items-center gap-4 rounded-xl bg-white border border-gray-100 p-4 transition-all duration-200 hover:shadow-card-hover hover:border-gray-200 dark:bg-gray-900/70 dark:border-gray-800 dark:hover:border-gray-700"
     >
       <div className="shrink-0 w-10 h-10 rounded-full bg-accent-50 text-accent-700 flex items-center justify-center text-sm font-bold dark:bg-accent-950/60 dark:text-accent-200">
         {rank}

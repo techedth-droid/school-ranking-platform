@@ -1,8 +1,8 @@
 'use client';
 
 import { Suspense, useState } from 'react';
-import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { BackNavLink } from '@/components/ui/NavLinks';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 
@@ -74,9 +74,7 @@ function ResetPasswordForm() {
         {loading ? 'กำลังบันทึก...' : 'บันทึกรหัสผ่าน'}
       </button>
       <p className="text-center text-sm">
-        <Link href="/admin/login" className="text-blue-600 hover:underline">
-          กลับไปเข้าสู่ระบบ
-        </Link>
+        <BackNavLink href="/admin/login">กลับไปเข้าสู่ระบบ</BackNavLink>
       </p>
     </form>
   );

@@ -11,6 +11,7 @@ const reportService = require('../report/report.service');
 const profileService = require('../profile/profile.service');
 const prisma = require('../prisma');
 const auditService = require('../audit.service');
+const yearSnapshotService = require('../yearSnapshot/yearSnapshot.service');
 
 const router = express.Router();
 
@@ -257,6 +258,21 @@ router.delete(
     try {
       await profileService.removeCertificate(req.params.id, req.params.certId);
       res.status(204).send();
+    } catch (e) {
+      next(e);
+    }
+  }
+);
+
+router.get(
+  '/:id/year-category-ranks',
+  param('id').isUUID(),
+  validate,
+  async (req, res, next) => {
+    try {
+      const data = await yearSnapshotService.getYearCategoryRankSeriesForSchool(req.params.id);
+      if (data === null) return res.status(404).json({ error: 'Not found' });
+      res.json(data);
     } catch (e) {
       next(e);
     }

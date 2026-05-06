@@ -146,14 +146,14 @@ export default function CertificateManager({ schoolId, readOnly = false }) {
                       href={url}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex-1 text-center py-1.5 text-blue-600 hover:bg-blue-50"
+                      className="flex-1 text-center py-2 text-xs font-semibold text-accent-700 transition-colors hover:bg-accent-50"
                     >
                       เปิดดู
                     </a>
                     <a
                       href={url}
                       download
-                      className="flex-1 text-center py-1.5 text-gray-700 hover:bg-gray-50"
+                      className="flex-1 text-center py-2 text-xs font-semibold text-muted-700 transition-colors hover:bg-muted-50"
                     >
                       ดาวน์โหลด
                     </a>

@@ -10,7 +10,8 @@ function clampScorePayload(body) {
   const data = {};
   KEYS.forEach((k) => {
     if (body[k] !== undefined) {
-      const v = Math.min(4, Math.max(0, Number(body[k])));
+      const n = Number(body[k]);
+      const v = Math.round(Math.min(4, Math.max(0, Number.isFinite(n) ? n : 0)) * 100) / 100;
       data[k] = v;
     }
   });

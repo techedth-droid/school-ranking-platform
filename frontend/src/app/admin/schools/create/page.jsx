@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import { BackNavLink } from '@/components/ui/NavLinks';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import SchoolForm from '@/components/admin/SchoolForm';
@@ -27,9 +27,7 @@ export default function CreateSchoolPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
       <div className="flex items-center gap-4 mb-4">
-        <Link href="/admin/schools" className="text-sm text-blue-600 hover:underline">
-          ← กลับ
-        </Link>
+        <BackNavLink href="/admin/schools">กลับ</BackNavLink>
         <h1 className="text-2xl font-bold">เพิ่มโรงเรียน</h1>
       </div>
       <SchoolForm onSubmit={handleSubmit} loading={loading} submitLabel="สร้างโรงเรียน" />

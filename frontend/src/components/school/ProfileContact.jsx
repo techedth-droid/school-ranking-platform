@@ -7,7 +7,10 @@ import {
   FacebookIcon,
   MessageCircleIcon,
   MailIcon,
+  AcademicCapIcon,
+  BuildingIcon,
 } from '@/components/Icons';
+import { ExternalInlineLink } from '@/components/ui/NavLinks';
 
 function ensureUrl(value) {
   if (!value) return null;
@@ -31,8 +34,14 @@ function Row({ icon, label, children }) {
 export default function ProfileContact({ school }) {
   const websiteUrl = ensureUrl(school.website);
   const facebookUrl = ensureUrl(school.facebookUrl);
+  const hasStudentCount = Number.isFinite(Number(school.studentCount));
+  const hasTotalRooms = Number.isFinite(Number(school.totalRooms));
+  const hasSmartRooms = Number.isFinite(Number(school.smartClassroomRooms));
 
   const hasAny =
+    hasStudentCount ||
+    hasTotalRooms ||
+    hasSmartRooms ||
     school.address ||
     school.phone ||
     school.contact ||
@@ -46,6 +55,21 @@ export default function ProfileContact({ school }) {
 
   return (
     <div className="grid sm:grid-cols-2 gap-x-6 gap-y-4">
+      {hasStudentCount ? (
+        <Row icon={<AcademicCapIcon className="w-4 h-4" />} label="จำนวนนักเรียนทั้งหมด">
+          <span>{Number(school.studentCount).toLocaleString()} คน</span>
+        </Row>
+      ) : null}
+      {hasTotalRooms ? (
+        <Row icon={<BuildingIcon className="w-4 h-4" />} label="จำนวนห้องเรียนทั้งหมด">
+          <span>{Number(school.totalRooms).toLocaleString()} ห้อง</span>
+        </Row>
+      ) : null}
+      {hasSmartRooms ? (
+        <Row icon={<BuildingIcon className="w-4 h-4" />} label="จำนวนห้อง Smart Classroom">
+          <span>{Number(school.smartClassroomRooms).toLocaleString()} ห้อง</span>
+        </Row>
+      ) : null}
       {school.address ? (
         <Row icon={<MapPinIconFull className="w-4 h-4" />} label="ที่อยู่">
           <span className="whitespace-pre-line">{school.address}</span>
@@ -53,33 +77,21 @@ export default function ProfileContact({ school }) {
       ) : null}
       {school.phone ? (
         <Row icon={<PhoneIcon className="w-4 h-4" />} label="โทรศัพท์">
-          <a href={`tel:${school.phone}`} className="text-accent-700 hover:underline">
-            {school.phone}
-          </a>
+          <ExternalInlineLink href={`tel:${school.phone}`}>{school.phone}</ExternalInlineLink>
         </Row>
       ) : null}
       {websiteUrl ? (
         <Row icon={<GlobeIcon className="w-4 h-4" />} label="เว็บไซต์">
-          <a
-            href={websiteUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="text-accent-700 hover:underline break-all"
-          >
+          <ExternalInlineLink href={websiteUrl} target="_blank" rel="noreferrer" className="break-all">
             {school.website}
-          </a>
+          </ExternalInlineLink>
         </Row>
       ) : null}
       {facebookUrl ? (
         <Row icon={<FacebookIcon className="w-4 h-4" />} label="Facebook">
-          <a
-            href={facebookUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="text-accent-700 hover:underline break-all"
-          >
+          <ExternalInlineLink href={facebookUrl} target="_blank" rel="noreferrer" className="break-all">
             {school.facebookUrl}
-          </a>
+          </ExternalInlineLink>
         </Row>
       ) : null}
       {school.lineId ? (

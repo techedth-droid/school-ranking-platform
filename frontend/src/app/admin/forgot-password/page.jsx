@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import api from '@/lib/api';
+import { BackNavLink } from '@/components/ui/NavLinks';
 import { toast } from 'sonner';
 
 export default function ForgotPasswordPage() {
@@ -59,9 +59,7 @@ export default function ForgotPasswordPage() {
           </div>
         ) : null}
         <p className="text-center text-sm">
-          <Link href="/admin/login" className="text-blue-600 hover:underline">
-            กลับไปเข้าสู่ระบบ
-          </Link>
+          <BackNavLink href="/admin/login">กลับไปเข้าสู่ระบบ</BackNavLink>
         </p>
       </form>
     </div>

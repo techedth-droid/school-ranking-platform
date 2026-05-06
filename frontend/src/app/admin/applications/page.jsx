@@ -1,7 +1,7 @@
 'use client';
 
-import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
+import { BackNavLink, ExternalInlineLink, InlineLink } from '@/components/ui/NavLinks';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 
@@ -79,9 +79,9 @@ function ApplicationRow({ row, onChanged }) {
       <div className="text-sm border-t border-gray-100 pt-3 space-y-1">
         <p>
           <span className="text-gray-500">ผู้ประสานงาน:</span> {row.coordinatorName} ·{' '}
-          <a className="text-blue-600" href={`mailto:${row.coordinatorEmail}`}>
+          <ExternalInlineLink href={`mailto:${row.coordinatorEmail}`}>
             {row.coordinatorEmail}
-          </a>
+          </ExternalInlineLink>
           {row.coordinatorPhone ? ` · ${row.coordinatorPhone}` : ''}
         </p>
         {row.message ? (
@@ -92,9 +92,9 @@ function ApplicationRow({ row, onChanged }) {
         {row.school ? (
           <p className="text-green-800">
             โรงเรียนในระบบ:{' '}
-            <Link href={`/admin/schools/${row.school.id}/edit`} className="underline">
+            <InlineLink href={`/admin/schools/${row.school.id}/edit`}>
               {row.school.name}
-            </Link>
+            </InlineLink>
           </p>
         ) : null}
         {row.adminNote ? (
@@ -179,9 +179,7 @@ export default function AdminApplicationsPage() {
     <div className="max-w-6xl mx-auto px-4 py-10">
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
-          <Link href="/admin/dashboard" className="text-sm text-blue-600 hover:underline">
-            ← แดชบอร์ด
-          </Link>
+          <BackNavLink href="/admin/dashboard">แดชบอร์ด</BackNavLink>
           <h1 className="text-2xl font-bold mt-2">คำขอลงทะเบียนโรงเรียน</h1>
           <p className="text-sm text-gray-600 mt-1">อนุมัติเพื่อสร้างโรงเรียนและบัญชีผู้ดูแล หรือปฏิเสธพร้อมบันทึกหมายเหตุ</p>
         </div>

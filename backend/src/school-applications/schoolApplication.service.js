@@ -10,6 +10,12 @@ function isUniqueViolation(e) {
 
 async function create(body) {
   const email = String(body.coordinatorEmail || '').trim().toLowerCase();
+  const totalRoomsRaw = body.totalRooms ?? 0;
+  const smartClassroomRoomsRaw = body.smartClassroomRooms ?? 0;
+  const studentCountRaw = body.studentCount ?? 0;
+  const totalRooms = Number(totalRoomsRaw);
+  const smartClassroomRooms = Number(smartClassroomRoomsRaw);
+  const studentCount = Number(studentCountRaw);
   return prisma.schoolApplication.create({
     data: {
       schoolName: String(body.schoolName || '').trim(),
@@ -21,6 +27,11 @@ async function create(body) {
       coordinatorEmail: email,
       coordinatorPhone: String(body.coordinatorPhone ?? '').trim(),
       message: String(body.message ?? '').trim(),
+      totalRooms: Number.isFinite(totalRooms) ? Math.max(0, Math.floor(totalRooms)) : 0,
+      smartClassroomRooms: Number.isFinite(smartClassroomRooms)
+        ? Math.max(0, Math.floor(smartClassroomRooms))
+        : 0,
+      studentCount: Number.isFinite(studentCount) ? Math.max(0, Math.floor(studentCount)) : 0,
     },
     select: {
       id: true,
@@ -98,6 +109,9 @@ async function approve(applicationId, actorId, { initialPassword }) {
           level: app.level,
           contact: app.coordinatorName,
           phone: app.coordinatorPhone || '',
+          totalRooms: app.totalRooms ?? 0,
+          smartClassroomRooms: app.smartClassroomRooms ?? 0,
+          studentCount: app.studentCount ?? 0,
           isPublished: false,
         },
       });

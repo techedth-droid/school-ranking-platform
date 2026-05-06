@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import api from '@/lib/api';
 import { useSchoolPortal } from '@/contexts/SchoolPortalContext';
 import { toast } from 'sonner';
 import BannerUpload from '@/components/admin/BannerUpload';
 import GalleryManager from '@/components/admin/GalleryManager';
 import CertificateManager from '@/components/admin/CertificateManager';
+import { ForwardNavLink, InlineLink } from '@/components/ui/NavLinks';
 
 export default function SchoolProfileManagePage() {
   const { schoolId } = useSchoolPortal();
@@ -62,14 +62,9 @@ export default function SchoolProfileManagePage() {
             จัดการเนื้อหาที่จะแสดงในหน้าสาธารณะของโรงเรียน
           </p>
         </div>
-        <Link
-          href={`/schools/${school.id}`}
-          target="_blank"
-          rel="noreferrer"
-          className="text-sm bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700"
-        >
-          ดูหน้าสาธารณะ ↗
-        </Link>
+        <ForwardNavLink href={`/schools/${school.id}`} external className="px-4 py-2 text-sm">
+          ดูหน้าสาธารณะ
+        </ForwardNavLink>
       </div>
 
       <Section title="ภาพแบนเนอร์" hint="ภาพหัวเพจของหน้าโรงเรียน">
@@ -113,9 +108,9 @@ export default function SchoolProfileManagePage() {
       <Section title="ข้อมูลติดต่อและรายละเอียดอื่น">
         <p className="text-sm text-gray-600">
           แก้ไขจังหวัด สังกัด ที่อยู่ เบอร์โทรและช่องทางติดต่อได้จากหน้า{' '}
-          <Link href="/school/edit" className="text-blue-600 hover:underline">
+          <InlineLink href="/school/edit">
             ข้อมูลโรงเรียน
-          </Link>
+          </InlineLink>
         </p>
       </Section>
     </div>

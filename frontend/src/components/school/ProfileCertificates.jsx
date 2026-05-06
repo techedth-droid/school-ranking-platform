@@ -24,7 +24,7 @@ export default function ProfileCertificates({ certificates = [] }) {
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+    <div className="space-y-3">
       {certificates.map((cert) => {
         const url = resolveAssetUrl(cert.fileUrl);
         const isPdf = cert.fileType === 'pdf';
@@ -34,10 +34,10 @@ export default function ProfileCertificates({ certificates = [] }) {
             href={url}
             target="_blank"
             rel="noreferrer"
-            className="group block border rounded-xl overflow-hidden bg-white hover:shadow-md transition"
+            className="group block w-full border rounded-xl overflow-hidden bg-white hover:shadow-md transition"
             title={cert.title || 'เปิดเอกสาร'}
           >
-            <div className="relative aspect-square bg-gray-50 flex items-center justify-center">
+            <div className="relative aspect-[16/9] bg-gray-50 flex items-center justify-center">
               {isPdf || !url ? (
                 <PdfIcon />
               ) : (
@@ -46,7 +46,7 @@ export default function ProfileCertificates({ certificates = [] }) {
                   alt={cert.title || 'ใบรับรอง'}
                   fill
                   sizes="(max-width: 640px) 50vw, 25vw"
-                  className="object-contain p-2 transition group-hover:scale-105"
+                  className="object-cover transition group-hover:scale-105"
                   unoptimized
                 />
               )}

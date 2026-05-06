@@ -1,8 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import Link from 'next/link';
 import api from '@/lib/api';
+import { BackNavLink } from '@/components/ui/NavLinks';
 import { toast } from 'sonner';
 
 function SummaryCard({ label, value, tone = 'slate' }) {
@@ -81,9 +81,7 @@ export default function AdminImportPage() {
       <div className="max-w-6xl mx-auto px-4 py-10 space-y-8">
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
           <div>
-            <Link href="/admin/dashboard" className="text-sm text-blue-600 hover:underline">
-              ← กลับแดชบอร์ด
-            </Link>
+            <BackNavLink href="/admin/dashboard">กลับแดชบอร์ด</BackNavLink>
             <h1 className="text-3xl font-bold text-slate-900 mt-3">นำเข้าโรงเรียนและคะแนน</h1>
             <p className="text-slate-600 mt-2 max-w-2xl">
               อัปโหลด CSV หนึ่งชีตตามไฟล์ตัวอย่าง ระบบจะตรวจหัวคอลัมน์ ข้อมูลบังคับ และคะแนน 0–4

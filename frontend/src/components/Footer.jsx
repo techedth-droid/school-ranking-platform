@@ -19,7 +19,7 @@ export default function Footer() {
         <div className="grid lg:grid-cols-3">
           <div className="px-6 py-8 lg:py-10">
             <div className="flex items-center pb-6">
-              <div className="relative h-16 w-[280px] max-w-full">
+              <div className="relative h-28 w-[460px] max-w-full">
                 <Image
                   src={TIIS_LOGO}
                   alt="TIIS Logo"
@@ -31,6 +31,9 @@ export default function Footer() {
             </div>
 
             <div className="pb-4">
+              <p className="text-xs font-semibold tracking-wide text-white/65">
+                สนับสนุนโดย
+              </p>
               <p className="text-sm font-extrabold text-white">
                 เทค อินฟินิตี้ อินเตอร์เนชั่นแนล โซลูชั่น
               </p>

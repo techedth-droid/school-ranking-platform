@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import api from '@/lib/api';
 import { useSchoolPortal } from '@/contexts/SchoolPortalContext';
 import { toast } from 'sonner';
+import { DangerInlineButton, ExternalInlineLink } from '@/components/ui/NavLinks';
 
 function fileUrl(storedName) {
   if (/^https?:\/\//i.test(storedName || '')) return storedName;
@@ -88,25 +89,16 @@ export default function SchoolEvidencePage() {
           {rows.map((r) => (
             <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 p-3 text-sm">
               <div>
-                <a
-                  href={fileUrl(r.storedName)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-blue-600 hover:underline"
-                >
+                <ExternalInlineLink href={fileUrl(r.storedName)} target="_blank" rel="noreferrer">
                   {r.originalName}
-                </a>
+                </ExternalInlineLink>
                 <div className="text-xs text-gray-500">
                   {new Date(r.createdAt).toLocaleString('th-TH')}
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => remove(r.id)}
-                className="text-red-600 text-sm hover:underline"
-              >
+              <DangerInlineButton onClick={() => remove(r.id)}>
                 ลบ
-              </button>
+              </DangerInlineButton>
             </li>
           ))}
         </ul>

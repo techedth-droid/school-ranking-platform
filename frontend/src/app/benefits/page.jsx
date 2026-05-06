@@ -3,7 +3,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect, useCallback } from 'react';
-import { ArrowLeftIcon, TrophyIcon } from '@/components/Icons';
+import { TrophyIcon } from '@/components/Icons';
+import { BackNavLink } from '@/components/ui/NavLinks';
 
 /* ─── benefit data ─── */
 const BENEFITS = [
@@ -181,13 +182,9 @@ export default function BenefitsPage() {
         <div className="pointer-events-none absolute -right-20 bottom-0 h-64 w-64 rounded-full bg-accent-400/10 blur-3xl" />
 
         <div className="relative mx-auto max-w-5xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
-          <Link
-            href="/"
-            className="group inline-flex items-center gap-2.5 rounded-xl border border-white/25 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white shadow-sm backdrop-blur-md transition-all hover:border-white/40 hover:bg-white/[0.18]"
-          >
-            <ArrowLeftIcon className="h-5 w-5 shrink-0 text-accent-200/90 transition-transform group-hover:-translate-x-1" />
+          <BackNavLink href="/" variant="hero">
             กลับหน้าอันดับ
-          </Link>
+          </BackNavLink>
 
           <div className="mt-8 flex items-center gap-4">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-400 to-accent-600 shadow-lg shadow-accent-500/25">

@@ -89,7 +89,7 @@ function normalizeScore(value) {
   const n = Number(value);
   if (!Number.isFinite(n)) return null;
   if (n < 0 || n > 4) return null;
-  return n;
+  return Math.round(Math.min(4, Math.max(0, n)) * 100) / 100;
 }
 
 function validateHeaders(headers) {

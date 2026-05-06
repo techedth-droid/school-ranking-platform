@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { ChartBarIcon, SchoolIcon, ArrowLeftIcon } from '@/components/Icons';
+import { ChartBarIcon, SchoolIcon } from '@/components/Icons';
+import { BackNavLink } from '@/components/ui/NavLinks';
 
 const GALLERY_FILES = [
   'IMG_2386.png',
@@ -37,13 +38,9 @@ export default function AboutPage() {
           }}
         />
         <div className="relative mx-auto max-w-4xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8">
-          <Link
-            href="/"
-            className="group inline-flex items-center gap-2.5 rounded-xl border border-white/25 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white shadow-sm backdrop-blur-md transition-all hover:border-white/40 hover:bg-white/[0.18] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-main-900"
-          >
-            <ArrowLeftIcon className="h-5 w-5 shrink-0 text-accent-200/90 transition-transform group-hover:-translate-x-1 group-hover:text-accent-100" />
+          <BackNavLink href="/" variant="hero">
             กลับหน้าอันดับ
-          </Link>
+          </BackNavLink>
           <div className="mt-6 flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm">
               <ChartBarIcon className="h-7 w-7 text-accent-300" />

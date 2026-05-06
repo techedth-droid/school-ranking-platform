@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
+import { BackNavLink, ForwardNavLink } from '@/components/ui/NavLinks';
 import api from '@/lib/api';
 import SchoolForm from '@/components/admin/SchoolForm';
 import LogoUpload from '@/components/admin/LogoUpload';
@@ -64,19 +64,12 @@ export default function EditSchoolPage() {
     <div className="max-w-3xl mx-auto px-4 py-10 space-y-8">
       <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
         <div className="flex items-center gap-4">
-          <Link href="/admin/schools" className="text-sm text-blue-600 hover:underline">
-            ← กลับ
-          </Link>
+          <BackNavLink href="/admin/schools">กลับ</BackNavLink>
           <h1 className="text-2xl font-bold">แก้ไขโรงเรียน</h1>
         </div>
-        <Link
-          href={`/schools/${school.id}`}
-          target="_blank"
-          rel="noreferrer"
-          className="text-sm bg-blue-600 text-white rounded-lg px-3 py-1.5 hover:bg-blue-700"
-        >
-          ดูหน้าโปรไฟล์ ↗
-        </Link>
+        <ForwardNavLink href={`/schools/${school.id}`} external className="px-3 py-1.5 text-sm">
+          ดูหน้าโปรไฟล์
+        </ForwardNavLink>
       </div>
       <section>
         <h2 className="font-semibold mb-3">โลโก้</h2>
@@ -116,9 +109,9 @@ export default function EditSchoolPage() {
       </section>
       <SchoolAdminInvite schoolId={school.id} />
       <div>
-        <Link href={`/admin/scores/${school.id}`} className="text-blue-600 hover:underline text-sm">
-          ไปกรอกคะแนน (ผู้ดูแลระบบ) →
-        </Link>
+        <ForwardNavLink href={`/admin/scores/${school.id}`} className="text-sm">
+          ไปกรอกคะแนน (ผู้ดูแลระบบ)
+        </ForwardNavLink>
       </div>
     </div>
   );

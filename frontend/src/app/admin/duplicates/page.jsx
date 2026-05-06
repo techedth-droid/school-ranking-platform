@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import api from '@/lib/api';
+import { BackNavLink, InlineLink } from '@/components/ui/NavLinks';
 import { toast } from 'sonner';
 
 export default function AdminDuplicatesPage() {
@@ -36,9 +36,7 @@ export default function AdminDuplicatesPage() {
             กลุ่มที่มีคีย์ชื่อเดียวกันหลายแถว — ควรรวมหรือลบซ้ำในระบบจัดการโรงเรียน
           </p>
         </div>
-        <Link href="/admin/dashboard" className="text-sm text-blue-600 hover:underline">
-          กลับแดชบอร์ด
-        </Link>
+        <BackNavLink href="/admin/dashboard">กลับแดชบอร์ด</BackNavLink>
       </div>
 
       {loading ? (
@@ -64,12 +62,9 @@ export default function AdminDuplicatesPage() {
                     <span className="text-gray-600">
                       {s.province} · {s.affiliation}
                     </span>
-                    <Link
-                      href={`/admin/schools/${s.id}/edit`}
-                      className="text-blue-600 hover:underline shrink-0"
-                    >
+                    <InlineLink href={`/admin/schools/${s.id}/edit`} className="shrink-0">
                       แก้ไข
-                    </Link>
+                    </InlineLink>
                   </li>
                 ))}
               </ul>

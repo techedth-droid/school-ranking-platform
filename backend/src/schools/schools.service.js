@@ -9,6 +9,12 @@ function isUniqueViolation(e) {
   return e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002';
 }
 
+function normalizeNonNegativeInt(value, fallback = 0) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.max(0, Math.floor(n));
+}
+
 function listFilters(query) {
   const where = { isPublished: true };
   if (query.province) where.province = query.province;
@@ -113,6 +119,9 @@ async function create(body) {
         phone: body.phone ?? '',
         facebookUrl: body.facebookUrl ?? '',
         lineId: body.lineId ?? '',
+        totalRooms: normalizeNonNegativeInt(body.totalRooms, 0),
+        smartClassroomRooms: normalizeNonNegativeInt(body.smartClassroomRooms, 0),
+        studentCount: normalizeNonNegativeInt(body.studentCount, 0),
         isPublished: Boolean(body.isPublished),
       },
     });
@@ -161,6 +170,11 @@ async function update(id, body, actor) {
   if (body.phone !== undefined) data.phone = body.phone;
   if (body.facebookUrl !== undefined) data.facebookUrl = body.facebookUrl;
   if (body.lineId !== undefined) data.lineId = body.lineId;
+  if (body.totalRooms !== undefined) data.totalRooms = normalizeNonNegativeInt(body.totalRooms, 0);
+  if (body.smartClassroomRooms !== undefined) {
+    data.smartClassroomRooms = normalizeNonNegativeInt(body.smartClassroomRooms, 0);
+  }
+  if (body.studentCount !== undefined) data.studentCount = normalizeNonNegativeInt(body.studentCount, 0);
   if (isAdmin && body.isPublished !== undefined) {
     data.isPublished = Boolean(body.isPublished);
   }

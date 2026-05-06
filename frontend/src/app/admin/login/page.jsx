@@ -3,11 +3,12 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { BackNavLink } from '@/components/ui/NavLinks';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import { setTokens } from '@/lib/auth';
 import { toast } from 'sonner';
-import { MailIcon, EyeIcon, ArrowLeftIcon } from '@/components/Icons';
+import { MailIcon, EyeIcon } from '@/components/Icons';
 
 const LOGO_SRC = '/images/logo/SCEE%20%20Smart%20Classroom%20%20Equity%20Excellence.png';
 
@@ -156,13 +157,12 @@ export default function LoginPage() {
             </button>
 
             <div className="flex flex-col gap-3 border-t border-muted-100 pt-5 sm:flex-row sm:items-center sm:justify-between dark:border-main-800">
-              <Link
+              <BackNavLink
                 href="/"
-                className="inline-flex items-center justify-center gap-1.5 text-sm text-gray-500 transition-colors hover:text-gray-800 sm:justify-start dark:text-gray-400 dark:hover:text-gray-200"
+                className="w-full justify-center border-muted-100 bg-muted-50/90 py-2 text-xs font-medium text-muted-600 shadow-none hover:border-muted-200 hover:bg-white hover:text-main-800 sm:w-auto sm:justify-start dark:border-main-700 dark:bg-main-900/50 dark:text-muted-400 dark:hover:bg-main-800 dark:hover:text-white"
               >
-                <ArrowLeftIcon className="h-4 w-4" />
                 กลับหน้าหลัก
-              </Link>
+              </BackNavLink>
               <Link
                 href="/admin/forgot-password"
                 className="text-center text-sm font-medium text-accent-600 transition-colors hover:text-accent-800 sm:text-right dark:text-accent-400 dark:hover:text-accent-300"

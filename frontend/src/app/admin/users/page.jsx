@@ -1,7 +1,7 @@
 'use client';
 
-import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
+import { BackNavLink, InlineLink } from '@/components/ui/NavLinks';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 
@@ -39,9 +39,7 @@ export default function AdminUsersPage() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
       <div className="mb-6">
-        <Link href="/admin/dashboard" className="text-sm text-blue-600 hover:underline">
-          ← แดชบอร์ด
-        </Link>
+        <BackNavLink href="/admin/dashboard">แดชบอร์ด</BackNavLink>
         <h1 className="text-2xl font-bold mt-2">ผู้ใช้ในระบบ</h1>
         <p className="text-sm text-gray-600 mt-1">บัญชีแอดมินและผู้ดูแลโรงเรียน</p>
       </div>
@@ -95,12 +93,9 @@ export default function AdminUsersPage() {
                     </td>
                     <td className="px-4 py-2">
                       {u.school ? (
-                        <Link
-                          href={`/admin/schools/${u.school.id}/edit`}
-                          className="text-blue-600 hover:underline"
-                        >
+                        <InlineLink href={`/admin/schools/${u.school.id}/edit`}>
                           {u.school.name}
-                        </Link>
+                        </InlineLink>
                       ) : (
                         <span className="text-gray-400">—</span>
                       )}

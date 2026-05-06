@@ -3,8 +3,6 @@
 import { useMemo, useState } from 'react';
 import {
   THAILAND_PROVINCE_OPTIONS,
-  AFFILIATION_GROUPS,
-  flattenAffiliationValues,
 } from '@/lib/scope';
 
 export default function SchoolForm({
@@ -14,8 +12,6 @@ export default function SchoolForm({
   loading = false,
   forSchoolAdmin = false,
 }) {
-  const allowedAff = flattenAffiliationValues();
-
   const provinceChoices = useMemo(() => {
     const opts = [...THAILAND_PROVINCE_OPTIONS];
     const p = initial.province;
@@ -25,14 +21,17 @@ export default function SchoolForm({
     return opts;
   }, [initial.province]);
 
-  const showLegacyAffiliation = initial.affiliation && !allowedAff.includes(initial.affiliation);
-
   const [form, setForm] = useState({
     name: initial.name ?? '',
     nameEn: initial.nameEn ?? '',
     province: initial.province ?? '',
     affiliation: initial.affiliation ?? '',
     level: initial.level ?? '',
+    totalRooms: Number.isFinite(Number(initial.totalRooms)) ? Number(initial.totalRooms) : 0,
+    smartClassroomRooms: Number.isFinite(Number(initial.smartClassroomRooms))
+      ? Number(initial.smartClassroomRooms)
+      : 0,
+    studentCount: Number.isFinite(Number(initial.studentCount)) ? Number(initial.studentCount) : 0,
     website: initial.website ?? '',
     contact: initial.contact ?? '',
     description: initial.description ?? '',
@@ -78,10 +77,11 @@ export default function SchoolForm({
         <label className="block text-sm font-medium text-gray-700 mb-1">ชื่อโรงเรียน (ภาษาอังกฤษ)</label>
         <input
           type="text"
+          required
           value={form.nameEn}
           onChange={(e) => setForm((p) => ({ ...p, nameEn: e.target.value }))}
           className="w-full border rounded px-3 py-2"
-          placeholder="School name in English (ถ้ามี)"
+          placeholder="School name in English"
         />
       </div>
 
@@ -104,26 +104,14 @@ export default function SchoolForm({
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">สังกัด</label>
-        <select
+        <input
+          type="text"
           required
           value={form.affiliation}
           onChange={(e) => setForm((p) => ({ ...p, affiliation: e.target.value }))}
-          className="w-full border rounded px-3 py-2 bg-white"
-        >
-          <option value="">เลือกสังกัด</option>
-          {AFFILIATION_GROUPS.map((group) => (
-            <optgroup key={group.label} label={group.label}>
-              {group.options.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </optgroup>
-          ))}
-          {showLegacyAffiliation && (
-            <option value={initial.affiliation}>{`${initial.affiliation} (ข้อมูลเดิม)`}</option>
-          )}
-        </select>
+          className="w-full border rounded px-3 py-2"
+          placeholder="เช่น สพฐ. / สช. / อปท. / เอกชน"
+        />
       </div>
 
       <div>
@@ -138,6 +126,47 @@ export default function SchoolForm({
           <option value="ประถมศึกษา">ประถมศึกษา</option>
           <option value="มัธยมศึกษา">มัธยมศึกษา</option>
         </select>
+      </div>
+
+      <div className="grid sm:grid-cols-3 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">จำนวนห้องเรียนทั้งหมด</label>
+          <input
+            type="number"
+            min={0}
+            step={1}
+            value={form.totalRooms}
+            onChange={(e) => setForm((p) => ({ ...p, totalRooms: Number(e.target.value) || 0 }))}
+            className="w-full border rounded px-3 py-2"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">จำนวนห้อง Smart Classroom</label>
+          <input
+            type="number"
+            min={0}
+            step={1}
+            value={form.smartClassroomRooms}
+            onChange={(e) =>
+              setForm((p) => ({
+                ...p,
+                smartClassroomRooms: Number(e.target.value) || 0,
+              }))
+            }
+            className="w-full border rounded px-3 py-2"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">จำนวนนักเรียนทั้งหมด</label>
+          <input
+            type="number"
+            min={0}
+            step={1}
+            value={form.studentCount}
+            onChange={(e) => setForm((p) => ({ ...p, studentCount: Number(e.target.value) || 0 }))}
+            className="w-full border rounded px-3 py-2"
+          />
+        </div>
       </div>
 
       <div>

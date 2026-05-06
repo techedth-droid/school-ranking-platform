@@ -1,10 +1,9 @@
 'use client';
 
-import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import api from '@/lib/api';
-import { AFFILIATION_GROUPS, THAILAND_PROVINCE_OPTIONS } from '@/lib/scope';
-import { ArrowLeftIcon } from '@/components/Icons';
+import { THAILAND_PROVINCE_OPTIONS } from '@/lib/scope';
+import { BackNavLink } from '@/components/ui/NavLinks';
 import { toast } from 'sonner';
 
 /** ฟิลด์พื้นขาว — บังคับสีตัวอักษรไม่ให้สืบทอด dark:text จาก body */
@@ -19,6 +18,9 @@ export default function SchoolRegisterPage() {
     province: '',
     affiliation: '',
     level: '',
+    totalRooms: 0,
+    smartClassroomRooms: 0,
+    studentCount: 0,
     coordinatorName: '',
     coordinatorEmail: '',
     coordinatorPhone: '',
@@ -39,6 +41,9 @@ export default function SchoolRegisterPage() {
         province: '',
         affiliation: '',
         level: '',
+        totalRooms: 0,
+        smartClassroomRooms: 0,
+        studentCount: 0,
         coordinatorName: '',
         coordinatorEmail: '',
         coordinatorPhone: '',
@@ -58,13 +63,9 @@ export default function SchoolRegisterPage() {
   return (
     <main className="max-w-xl mx-auto px-4 py-10">
       <div className="mb-6">
-        <Link
-          href="/"
-          className="group inline-flex items-center gap-2 rounded-xl border border-muted-200 bg-white px-3.5 py-2.5 text-sm font-medium text-accent-800 shadow-sm transition-all hover:border-accent-200 hover:bg-accent-50 hover:text-accent-950 dark:border-main-800 dark:bg-main-900/60 dark:text-accent-300 dark:shadow-none dark:hover:border-accent-700 dark:hover:bg-main-900/90 dark:hover:text-contrast"
-        >
-          <ArrowLeftIcon className="h-4 w-4 shrink-0 text-accent-600 transition-transform group-hover:-translate-x-0.5 dark:text-accent-400 dark:group-hover:text-contrast" />
+        <BackNavLink href="/" className="px-3.5 dark:border-main-800 dark:bg-main-900/60 dark:text-accent-300 dark:shadow-none dark:hover:border-accent-700 dark:hover:bg-main-900/90 dark:hover:text-contrast">
           กลับหน้าอันดับ
-        </Link>
+        </BackNavLink>
         <h1 className="text-2xl font-bold mt-4 text-gray-900 dark:text-white">
           ลงทะเบียนโรงเรียน (รอการอนุมัติ)
         </h1>
@@ -92,14 +93,15 @@ export default function SchoolRegisterPage() {
         </div>
         <div>
           <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
-            ชื่อโรงเรียน (อังกฤษ)
+            ชื่อโรงเรียน (อังกฤษ) *
           </label>
           <input
             type="text"
+            required
             value={form.nameEn}
             onChange={(e) => setForm((p) => ({ ...p, nameEn: e.target.value }))}
             className={FIELD}
-            placeholder="ถ้ามี"
+            placeholder="School name in English"
           />
         </div>
         <div>
@@ -120,23 +122,14 @@ export default function SchoolRegisterPage() {
         </div>
         <div>
           <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">สังกัด *</label>
-          <select
+          <input
+            type="text"
             required
             value={form.affiliation}
             onChange={(e) => setForm((p) => ({ ...p, affiliation: e.target.value }))}
             className={FIELD}
-          >
-            <option value="">เลือกสังกัด</option>
-            {AFFILIATION_GROUPS.map((group) => (
-              <optgroup key={group.label} label={group.label}>
-                {group.options.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
+            placeholder="เช่น สพฐ. / สช. / อปท. / เอกชน"
+          />
         </div>
         <div>
           <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">ระดับการศึกษา *</label>
@@ -150,6 +143,63 @@ export default function SchoolRegisterPage() {
             <option value="ประถมศึกษา">ประถมศึกษา</option>
             <option value="มัธยมศึกษา">มัธยมศึกษา</option>
           </select>
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
+            จำนวนห้องเรียนทั้งหมด *
+          </label>
+          <input
+            type="number"
+            required
+            min={0}
+            step={1}
+            value={form.totalRooms}
+            onChange={(e) =>
+              setForm((p) => ({ ...p, totalRooms: Number(e.target.value) || 0 }))
+            }
+            className={FIELD}
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
+            จำนวนห้อง Smart Classroom *
+          </label>
+          <input
+            type="number"
+            required
+            min={0}
+            step={1}
+            value={form.smartClassroomRooms}
+            onChange={(e) =>
+              setForm((p) => ({
+                ...p,
+                smartClassroomRooms: Number(e.target.value) || 0,
+              }))
+            }
+            className={FIELD}
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            ป้อนจำนวนห้องที่ติดตั้งระบบ Smart Classroom
+          </p>
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
+            จำนวนนักเรียนทั้งหมด *
+          </label>
+          <input
+            type="number"
+            required
+            min={0}
+            step={1}
+            value={form.studentCount}
+            onChange={(e) =>
+              setForm((p) => ({ ...p, studentCount: Number(e.target.value) || 0 }))
+            }
+            className={FIELD}
+          />
         </div>
 
         <div className="mt-2 border-t border-gray-200 pt-4 dark:border-gray-600">

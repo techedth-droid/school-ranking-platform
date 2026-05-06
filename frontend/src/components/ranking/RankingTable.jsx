@@ -23,7 +23,7 @@ function SortIndicator({ active, direction }) {
   );
 }
 
-function ScoreMiniBar({ score, max = 100 }) {
+function ScoreMiniBar({ score, max = 20 }) {
   const pct = Math.min((score / max) * 100, 100);
   return (
     <div className="flex items-center gap-2.5">

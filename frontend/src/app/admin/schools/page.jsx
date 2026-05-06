@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import api from '@/lib/api';
+import { DangerInlineButton, InlineLink } from '@/components/ui/NavLinks';
 import { toast } from 'sonner';
 
 export default function AdminSchoolsPage() {
@@ -78,6 +79,7 @@ export default function AdminSchoolsPage() {
             <tr>
               <th className="p-3">ชื่อ</th>
               <th className="p-3">จังหวัด</th>
+              <th className="p-3">ข้อมูลห้อง/นักเรียน</th>
               <th className="p-3">เผยแพร่</th>
               <th className="p-3 text-right">การจัดการ</th>
             </tr>
@@ -92,6 +94,11 @@ export default function AdminSchoolsPage() {
                   ) : null}
                 </td>
                 <td className="p-3">{s.province}</td>
+                <td className="p-3 text-xs text-gray-700 whitespace-nowrap">
+                  <div>ห้องทั้งหมด: {Number(s.totalRooms ?? 0).toLocaleString()}</div>
+                  <div>Smart Classroom: {Number(s.smartClassroomRooms ?? 0).toLocaleString()}</div>
+                  <div>นักเรียน: {Number(s.studentCount ?? 0).toLocaleString()}</div>
+                </td>
                 <td className="p-3">
                   <button
                     type="button"
@@ -102,15 +109,15 @@ export default function AdminSchoolsPage() {
                   </button>
                 </td>
                 <td className="p-3 text-right space-x-2 whitespace-nowrap">
-                  <Link href={`/admin/schools/${s.id}/edit`} className="text-blue-600 hover:underline">
+                  <InlineLink href={`/admin/schools/${s.id}/edit`}>
                     แก้ไข
-                  </Link>
-                  <Link href={`/admin/scores/${s.id}`} className="text-blue-600 hover:underline">
+                  </InlineLink>
+                  <InlineLink href={`/admin/scores/${s.id}`}>
                     คะแนน
-                  </Link>
-                  <button type="button" onClick={() => removeSchool(s.id)} className="text-red-600 hover:underline">
+                  </InlineLink>
+                  <DangerInlineButton onClick={() => removeSchool(s.id)}>
                     ลบ
-                  </button>
+                  </DangerInlineButton>
                 </td>
               </tr>
             ))}
