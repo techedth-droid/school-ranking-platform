@@ -51,11 +51,6 @@ export default function ProfileCertificates({ certificates = [] }) {
                 />
               )}
             </div>
-            {cert.title ? (
-              <div className="p-2 text-xs text-gray-700 line-clamp-2 border-t bg-white">
-                {cert.title}
-              </div>
-            ) : null}
           </a>
         );
       })}

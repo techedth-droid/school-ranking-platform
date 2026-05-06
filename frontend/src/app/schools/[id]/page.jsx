@@ -236,7 +236,6 @@ export default function SchoolProfilePage() {
         <Section
           title="กิจกรรม Smart Classroom"
           icon={<CameraIcon className="w-4 h-4" />}
-          hint="(สูงสุด 5 ภาพ)"
           minHeightClass="min-h-[240px]"
         >
           <ProfileGallery images={school.galleryImages || []} />

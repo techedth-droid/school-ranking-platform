@@ -24,7 +24,7 @@ export default function Footer() {
                   src={TIIS_LOGO}
                   alt="TIIS Logo"
                   fill
-                  className="object-contain object-left brightness-0 invert"
+                  className="object-contain object-left"
                   sizes="280px"
                 />
               </div>
