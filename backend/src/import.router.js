@@ -1,5 +1,7 @@
 const express = require('express');
 const multer = require('multer');
+const { body } = require('express-validator');
+const { validate } = require('./middleware/validate.middleware');
 const { authMiddleware } = require('./middleware/auth.middleware');
 const { requireRole } = require('./middleware/roles.middleware');
 const importService = require('./import.service');
@@ -29,10 +31,12 @@ router.post(
   authMiddleware,
   requireRole('ADMIN'),
   upload.single('file'),
+  body('year').optional({ checkFalsy: true }).isInt({ min: 2000, max: 2100 }),
+  validate,
   requireFile,
   async (req, res, next) => {
     try {
-      const result = await importService.analyzeCsv(req.file.buffer);
+      const result = await importService.analyzeCsv(req.file.buffer, { year: req.body.year });
       const { normalizedRows: _normalizedRows, ...safeResult } = result;
       res.json(safeResult);
     } catch (e) {
@@ -46,12 +50,15 @@ router.post(
   authMiddleware,
   requireRole('ADMIN'),
   upload.single('file'),
+  body('year').optional({ checkFalsy: true }).isInt({ min: 2000, max: 2100 }),
+  validate,
   requireFile,
   async (req, res, next) => {
     try {
       const result = await importService.importCsv(req.file.buffer, {
         actorId: req.user.sub,
         ip: req.ip,
+        year: req.body.year,
       });
       res.json(result);
     } catch (e) {

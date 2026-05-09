@@ -3,6 +3,7 @@ const prisma = require('./prisma');
 const auditService = require('./audit.service');
 const { normalizeSchoolName } = require('./utils/schoolNameKey');
 const rankingService = require('./ranking/ranking.service');
+const yearSnapshotService = require('./yearSnapshot/yearSnapshot.service');
 
 const SCHOOL_HEADERS = [
   'id',
@@ -11,6 +12,9 @@ const SCHOOL_HEADERS = [
   'province',
   'affiliation',
   'level',
+  'totalRooms',
+  'smartClassroomRooms',
+  'studentCount',
   'website',
   'contact',
   'description',
@@ -27,6 +31,7 @@ const SCORE_HEADERS = [];
 });
 
 const EXPECTED_HEADERS = [...SCHOOL_HEADERS, ...SCORE_HEADERS];
+const SCORE_ONLY_HEADERS = ['name', ...SCORE_HEADERS];
 const REQUIRED_SCHOOL_FIELDS = ['name', 'province', 'affiliation', 'level'];
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -92,18 +97,58 @@ function normalizeScore(value) {
   return Math.round(Math.min(4, Math.max(0, n)) * 100) / 100;
 }
 
+function normalizeNonNegativeInt(value) {
+  const raw = String(value ?? '').trim();
+  if (raw === '') return 0;
+  const n = Number(raw);
+  if (!Number.isFinite(n)) return null;
+  if (n < 0) return null;
+  return Math.floor(n);
+}
+
+function parseImportYear(rawYear) {
+  if (rawYear == null || String(rawYear).trim() === '') return new Date().getFullYear();
+  const year = Number(rawYear);
+  if (!Number.isInteger(year)) return null;
+  return year;
+}
+
+function validateImportYear(rawYear) {
+  const year = parseImportYear(rawYear);
+  if (year == null) return { year: null, error: 'ปีต้องเป็นตัวเลขจำนวนเต็ม' };
+  const { startYear, endYear } = yearSnapshotService.getAdminYearRange();
+  if (year < startYear || year > endYear) {
+    return { year: null, error: `ปีต้องอยู่ระหว่าง ${startYear}-${endYear}` };
+  }
+  return { year, error: null };
+}
+
+function hasSameHeaders(headers, expected) {
+  if (headers.length !== expected.length) return false;
+  return expected.every((header, idx) => headers[idx] === header);
+}
+
 function validateHeaders(headers) {
   const normalized = headers.map((h) => h.trim());
+  if (hasSameHeaders(normalized, EXPECTED_HEADERS)) {
+    return { mode: 'full', errors: [] };
+  }
+  if (hasSameHeaders(normalized, SCORE_ONLY_HEADERS)) {
+    return { mode: 'score_only', errors: [] };
+  }
   const errors = [];
   EXPECTED_HEADERS.forEach((header, idx) => {
     if (normalized[idx] !== header) {
       errors.push(`คอลัมน์ที่ ${idx + 1} ต้องเป็น "${header}" แต่พบ "${normalized[idx] || '(ว่าง)'}"`);
     }
   });
-  if (normalized.length !== EXPECTED_HEADERS.length) {
-    errors.push(`จำนวนคอลัมน์ต้องเป็น ${EXPECTED_HEADERS.length} แต่พบ ${normalized.length}`);
-  }
-  return errors;
+  errors.push(
+    `หรือใช้ไฟล์แบบอัปโหลดคะแนนอย่างเดียวได้ โดยหัวคอลัมน์ต้องเป็น: ${SCORE_ONLY_HEADERS.join(',')}`
+  );
+  errors.push(
+    `จำนวนคอลัมน์ต้องเป็น ${EXPECTED_HEADERS.length} (แบบเต็ม) หรือ ${SCORE_ONLY_HEADERS.length} (แบบคะแนนอย่างเดียว) แต่พบ ${normalized.length}`
+  );
+  return { mode: null, errors };
 }
 
 function buildRowObject(headers, cells) {
@@ -131,6 +176,12 @@ function validateAndNormalizeRow(raw, rowNumber, existingIds, existingByName) {
 
   const isPublished = parseBoolean(raw.isPublished);
   if (isPublished === null) errors.push('isPublished ต้องเป็น 0/1 หรือ true/false');
+  const totalRooms = normalizeNonNegativeInt(raw.totalRooms);
+  if (totalRooms === null) errors.push('totalRooms ต้องเป็นจำนวนเต็ม >= 0');
+  const smartClassroomRooms = normalizeNonNegativeInt(raw.smartClassroomRooms);
+  if (smartClassroomRooms === null) errors.push('smartClassroomRooms ต้องเป็นจำนวนเต็ม >= 0');
+  const studentCount = normalizeNonNegativeInt(raw.studentCount);
+  if (studentCount === null) errors.push('studentCount ต้องเป็นจำนวนเต็ม >= 0');
 
   const scores = {};
   SCORE_HEADERS.forEach((key) => {
@@ -158,6 +209,9 @@ function validateAndNormalizeRow(raw, rowNumber, existingIds, existingByName) {
             province: raw.province,
             affiliation: raw.affiliation,
             level: raw.level,
+            totalRooms,
+            smartClassroomRooms,
+            studentCount,
             website: raw.website,
             contact: raw.contact,
             description: raw.description,
@@ -172,12 +226,60 @@ function validateAndNormalizeRow(raw, rowNumber, existingIds, existingByName) {
   };
 }
 
-async function analyzeCsv(buffer) {
+function validateAndNormalizeScoreOnlyRow(raw, rowNumber, existingByName) {
+  const errors = [];
+  const nameKey = normalizeSchoolName(raw.name);
+  if (!nameKey) errors.push('ชื่อโรงเรียนไม่ถูกต้อง');
+  const matchedSchool = nameKey ? existingByName.get(nameKey) : null;
+  if (!matchedSchool) errors.push('ไม่พบชื่อโรงเรียนนี้ในระบบ');
+
+  const scores = {};
+  SCORE_HEADERS.forEach((key) => {
+    const score = normalizeScore(raw[key]);
+    if (score === null) {
+      errors.push(`${key} ต้องเป็นตัวเลข 0–4`);
+    } else {
+      scores[key] = score;
+    }
+  });
+
+  return {
+    rowNumber,
+    action: 'update-score',
+    id: matchedSchool?.id || '',
+    name: raw.name,
+    errors,
+    data: errors.length
+      ? null
+      : {
+          schoolId: matchedSchool.id,
+          scores,
+        },
+  };
+}
+
+async function analyzeCsv(buffer, { year: rawYear } = {}) {
   const text = buffer.toString('utf8');
   const rows = parseCsv(text);
+  const yearValidation = validateImportYear(rawYear);
+  if (yearValidation.error) {
+    return {
+      ok: false,
+      year: null,
+      totalRows: Math.max(0, rows.length - 1),
+      validRows: 0,
+      createCount: 0,
+      updateCount: 0,
+      errorCount: 1,
+      headerErrors: [yearValidation.error],
+      rows: [],
+    };
+  }
+  const importYear = yearValidation.year;
   if (rows.length === 0) {
     return {
       ok: false,
+      year: importYear,
       totalRows: 0,
       validRows: 0,
       createCount: 0,
@@ -189,19 +291,21 @@ async function analyzeCsv(buffer) {
   }
 
   const headers = rows[0].map((h) => h.trim());
-  const headerErrors = validateHeaders(headers);
-  if (headerErrors.length) {
+  const headerValidation = validateHeaders(headers);
+  if (headerValidation.errors.length) {
     return {
       ok: false,
+      year: importYear,
       totalRows: Math.max(0, rows.length - 1),
       validRows: 0,
       createCount: 0,
       updateCount: 0,
-      errorCount: headerErrors.length,
-      headerErrors,
+      errorCount: headerValidation.errors.length,
+      headerErrors: headerValidation.errors,
       rows: [],
     };
   }
+  const mode = headerValidation.mode;
 
   const dataRows = rows.slice(1);
   const ids = dataRows
@@ -226,11 +330,12 @@ async function analyzeCsv(buffer) {
   const resultRows = dataRows.map((cells, idx) => {
     const rowNumber = idx + 2;
     const rowErrors = [];
-    if (cells.length !== EXPECTED_HEADERS.length) {
-      rowErrors.push(`จำนวนคอลัมน์ต้องเป็น ${EXPECTED_HEADERS.length} แต่พบ ${cells.length}`);
+    const expectedLen = mode === 'score_only' ? SCORE_ONLY_HEADERS.length : EXPECTED_HEADERS.length;
+    if (cells.length !== expectedLen) {
+      rowErrors.push(`จำนวนคอลัมน์ต้องเป็น ${expectedLen} แต่พบ ${cells.length}`);
     }
     const raw = buildRowObject(headers, cells);
-    if (raw.id) {
+    if (mode === 'full' && raw.id) {
       if (seenIds.has(raw.id)) rowErrors.push('id ซ้ำในไฟล์เดียวกัน');
       seenIds.add(raw.id);
     }
@@ -239,7 +344,10 @@ async function analyzeCsv(buffer) {
       if (seenNames.has(nk)) rowErrors.push('ชื่อโรงเรียนซ้ำในไฟล์เดียวกัน');
       seenNames.add(nk);
     }
-    const normalized = validateAndNormalizeRow(raw, rowNumber, existingIds, existingByName);
+    const normalized =
+      mode === 'score_only'
+        ? validateAndNormalizeScoreOnlyRow(raw, rowNumber, existingByName)
+        : validateAndNormalizeRow(raw, rowNumber, existingIds, existingByName);
     return {
       ...normalized,
       errors: [...rowErrors, ...normalized.errors],
@@ -251,6 +359,8 @@ async function analyzeCsv(buffer) {
   const errorRows = resultRows.filter((r) => r.errors.length > 0);
   return {
     ok: errorRows.length === 0,
+    mode,
+    year: importYear,
     totalRows: resultRows.length,
     validRows: validRows.length,
     createCount: validRows.filter((r) => r.action === 'create').length,
@@ -262,8 +372,8 @@ async function analyzeCsv(buffer) {
   };
 }
 
-async function importCsv(buffer, { actorId, ip } = {}) {
-  const analysis = await analyzeCsv(buffer);
+async function importCsv(buffer, { actorId, ip, year } = {}) {
+  const analysis = await analyzeCsv(buffer, { year });
   if (!analysis.ok) {
     const err = new Error('CSV validation failed');
     err.status = 400;
@@ -274,20 +384,48 @@ async function importCsv(buffer, { actorId, ip } = {}) {
   try {
     await prisma.$transaction(async (tx) => {
       for (const row of analysis.normalizedRows) {
-        const school =
-          row.action === 'update'
-            ? await tx.school.update({
-                where: { id: row.id },
-                data: row.data.school,
-              })
-            : await tx.school.create({
-                data: row.data.school,
-              });
+        const schoolId =
+          analysis.mode === 'score_only'
+            ? row.data.schoolId
+            : (
+                row.action === 'update'
+                  ? await tx.school.update({
+                      where: { id: row.id },
+                      data: row.data.school,
+                    })
+                  : await tx.school.create({
+                      data: row.data.school,
+                    })
+              ).id;
 
         await tx.score.upsert({
-          where: { schoolId: school.id },
+          where: { schoolId },
           update: row.data.scores,
-          create: { schoolId: school.id, ...row.data.scores },
+          create: { schoolId, ...row.data.scores },
+        });
+
+        // Persist yearly snapshot for the selected import year.
+        const s = row.data.scores;
+        await tx.schoolYearCategorySnapshot.upsert({
+          where: { schoolId_year: { schoolId, year: analysis.year } },
+          create: {
+            schoolId,
+            year: analysis.year,
+            scoreA: s.a1 + s.a2 + s.a3 + s.a4 + s.a5,
+            scoreB: s.b1 + s.b2 + s.b3 + s.b4 + s.b5,
+            scoreC: s.c1 + s.c2 + s.c3 + s.c4 + s.c5,
+            scoreD: s.d1 + s.d2 + s.d3 + s.d4 + s.d5,
+            scoreE: s.e1 + s.e2 + s.e3 + s.e4 + s.e5,
+            ...s,
+          },
+          update: {
+            scoreA: s.a1 + s.a2 + s.a3 + s.a4 + s.a5,
+            scoreB: s.b1 + s.b2 + s.b3 + s.b4 + s.b5,
+            scoreC: s.c1 + s.c2 + s.c3 + s.c4 + s.c5,
+            scoreD: s.d1 + s.d2 + s.d3 + s.d4 + s.d5,
+            scoreE: s.e1 + s.e2 + s.e3 + s.e4 + s.e5,
+            ...s,
+          },
         });
       }
     });
@@ -309,6 +447,8 @@ async function importCsv(buffer, { actorId, ip } = {}) {
       rows: analysis.totalRows,
       createCount: analysis.createCount,
       updateCount: analysis.updateCount,
+      mode: analysis.mode,
+      year: analysis.year,
     },
     ip,
   });

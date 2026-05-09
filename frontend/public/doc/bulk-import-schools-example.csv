@@ -1,3 +1,3 @@
-﻿id,name,nameEn,province,affiliation,level,website,contact,description,address,phone,facebookUrl,lineId,isPublished,a1,a2,a3,a4,a5,b1,b2,b3,b4,b5,c1,c2,c3,c4,c5,d1,d2,d3,d4,d5,e1,e2,e3,e4,e5
-,โรงเรียนตัวอย่าง 1,,กรุงเทพมหานคร,สพฐ.,มัธยมศึกษา,,,,,,,,1,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,1,1,1,1,1,0,0,0,0,0
-,โรงเรียนตัวอย่าง 2,,สมุทรปราการ,อปท.,ประถมศึกษา,,,,,,,,0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2
+﻿id,name,nameEn,province,affiliation,level,totalRooms,smartClassroomRooms,studentCount,website,contact,description,address,phone,facebookUrl,lineId,isPublished,a1,a2,a3,a4,a5,b1,b2,b3,b4,b5,c1,c2,c3,c4,c5,d1,d2,d3,d4,d5,e1,e2,e3,e4,e5
+,โรงเรียนตัวอย่าง 1,School Example 1,กรุงเทพมหานคร,สพฐ.,มัธยมศึกษา,48,12,1250,,,,,,,,1,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,1,1,1,1,1,0,0,0,0,0
+,โรงเรียนตัวอย่าง 2,School Example 2,สมุทรปราการ,อปท.,ประถมศึกษา,24,6,640,,,,,,,,0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2

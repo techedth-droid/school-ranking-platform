@@ -22,6 +22,7 @@ function SummaryCard({ label, value, tone = 'slate' }) {
 
 export default function AdminImportPage() {
   const [file, setFile] = useState(null);
+  const [year, setYear] = useState(String(new Date().getFullYear()));
   const [result, setResult] = useState(null);
   const [checking, setChecking] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -45,6 +46,7 @@ export default function AdminImportPage() {
     }
     const fd = new FormData();
     fd.append('file', file);
+    fd.append('year', year);
     setBusy(true);
     try {
       const { data } = await api.post(endpoint, fd, {
@@ -84,8 +86,8 @@ export default function AdminImportPage() {
             <BackNavLink href="/admin/dashboard">กลับแดชบอร์ด</BackNavLink>
             <h1 className="text-3xl font-bold text-slate-900 mt-3">นำเข้าโรงเรียนและคะแนน</h1>
             <p className="text-slate-600 mt-2 max-w-2xl">
-              อัปโหลด CSV หนึ่งชีตตามไฟล์ตัวอย่าง ระบบจะตรวจหัวคอลัมน์ ข้อมูลบังคับ และคะแนน 0–4
-              ก่อนนำเข้าจริง
+              อัปโหลด CSV โดยเลือกปีที่จะบันทึกคะแนนได้ รองรับทั้งไฟล์แบบเต็ม และไฟล์แบบสั้น
+              (name + a1-e5) สำหรับอัปเดตคะแนนตามชื่อโรงเรียน
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -94,7 +96,14 @@ export default function AdminImportPage() {
               download
               className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm hover:bg-slate-50"
             >
-              ดาวน์โหลด CSV ตัวอย่าง
+              ดาวน์โหลด CSV แบบเต็ม
+            </a>
+            <a
+              href="/doc/bulk-import-scores-by-name-example.csv"
+              download
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm hover:bg-slate-50"
+            >
+              ดาวน์โหลด CSV คะแนนอย่างเดียว
             </a>
             <a
               href="/doc/bulk-import-columns.txt"
@@ -108,7 +117,7 @@ export default function AdminImportPage() {
         </div>
 
         <section className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm">
-          <div className="grid lg:grid-cols-[1fr_auto] gap-4 lg:items-end">
+          <div className="grid lg:grid-cols-[1fr_12rem_auto] gap-4 lg:items-end">
             <label className="block">
               <span className="text-sm font-medium text-slate-700">ไฟล์ CSV</span>
               <input
@@ -122,6 +131,17 @@ export default function AdminImportPage() {
                   เลือกไฟล์: {file.name} ({Math.ceil(file.size / 1024)} KB)
                 </p>
               ) : null}
+            </label>
+            <label className="block">
+              <span className="text-sm font-medium text-slate-700">ปีที่อัปโหลดคะแนน</span>
+              <input
+                type="number"
+                min={2025}
+                max={2100}
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+                className="mt-2 block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm"
+              />
             </label>
             <div className="flex flex-col sm:flex-row gap-2">
               <button
@@ -156,7 +176,8 @@ export default function AdminImportPage() {
 
             {result.imported ? (
               <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
-                นำเข้าสำเร็จ และคำนวณอันดับใหม่แล้ว ({result.ranking?.recalculated ?? 0} โรงเรียน)
+                นำเข้าสำเร็จ ปี {result.year} ({result.mode === 'score_only' ? 'โหมดคะแนนตามชื่อโรงเรียน' : 'โหมดข้อมูลเต็ม'})
+                {' '}และคำนวณอันดับใหม่แล้ว ({result.ranking?.recalculated ?? 0} โรงเรียน)
               </div>
             ) : null}
 
@@ -222,7 +243,13 @@ export default function AdminImportPage() {
                       {result.rows.slice(0, 20).map((row) => (
                         <tr key={row.rowNumber} className="border-t">
                           <td className="p-3 font-mono">{row.rowNumber}</td>
-                          <td className="p-3">{row.action === 'update' ? 'อัปเดต' : 'สร้างใหม่'}</td>
+                          <td className="p-3">
+                            {row.action === 'update'
+                              ? 'อัปเดต'
+                              : row.action === 'update-score'
+                                ? 'อัปเดตคะแนน'
+                                : 'สร้างใหม่'}
+                          </td>
                           <td className="p-3">{row.name || '-'}</td>
                           <td className="p-3">
                             {row.errors?.length ? (
